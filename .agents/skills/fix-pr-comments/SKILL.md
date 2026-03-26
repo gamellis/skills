@@ -163,7 +163,67 @@ One comment at a time. Don't batch. Each cycle is self-contained: you learn from
 
 For selected **nit** comments, apply them directly — rename variables, remove unused imports, fix formatting. These don't need tests since they don't change behavior. Run the test suite after all nits are applied to confirm nothing broke.
 
-## Step 7: Report
+## Step 7: Resolve Fixed Conversations
+
+After fixing comments, resolve their review threads on GitHub so reviewers can see they've been addressed. Use the GraphQL API since the REST API doesn't support resolving threads.
+
+First, fetch all review threads and their node IDs:
+
+```bash
+gh api graphql -f query='
+  query($owner: String!, $repo: String!, $pr: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pr) {
+        reviewThreads(first: 100) {
+          nodes {
+            id
+            isResolved
+            comments(first: 1) {
+              nodes {
+                body
+                path
+                line
+                databaseId
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+' -f owner='{owner}' -f repo='{repo}' -F pr={pr_number}
+```
+
+Match each thread to the comments you fixed by comparing the `databaseId`, file path, and line number against the comments from Step 2. For every thread whose comment you fixed or applied as a nit, resolve it:
+
+```bash
+gh api graphql -f query='
+  mutation($threadId: ID!) {
+    resolveReviewThread(input: {threadId: $threadId}) {
+      thread {
+        id
+        isResolved
+      }
+    }
+  }
+' -f threadId='<thread_node_id>'
+```
+
+Only resolve threads for comments you actually addressed (categories: **fix**, **nit**, **resolved**). Do NOT resolve threads for **question** or **out-of-scope** comments — those still need human attention.
+
+For **question** and **out-of-scope** comments, reply to the thread explaining why they weren't addressed:
+
+```bash
+# Reply to a review comment thread
+gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies \
+  -f body='<explanation>'
+```
+
+Keep replies concise and actionable:
+- **question**: Explain that this needs a human response, and include any context you gathered that might help the PR author answer. E.g., *"This needs a response from the author — the existing rate limiter is in `src/middleware/rate-limit.ts` if that helps frame the reply."*
+- **out-of-scope**: Explain why it doesn't belong in this PR and suggest where it should be tracked. E.g., *"Valid concern — this is a broader refactor beyond the scope of this PR. Recommend tracking as a follow-up issue."*
+
+## Step 8: Report
 
 After all selected comments are addressed, summarize:
 
