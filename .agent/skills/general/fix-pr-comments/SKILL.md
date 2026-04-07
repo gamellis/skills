@@ -22,7 +22,7 @@ Determine which PR to work on:
 
 ## Step 2: Fetch Comments and Establish Baseline
 
-Pull all review comments and general PR comments:
+Pull all review comments, general PR comments, and review thread IDs:
 
 ```bash
 # Review comments (on specific lines of code)
@@ -35,7 +35,36 @@ gh api repos/{owner}/{repo}/issues/{pr_number}/comments --paginate
 gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --paginate
 ```
 
-For each comment, capture: id, author, body, file path + line (if review comment), whether it's part of a resolved conversation, and any reply thread.
+### Fetch review thread IDs
+
+Thread IDs are needed to resolve conversations on GitHub after fixing them. Fetch them via GraphQL:
+
+```bash
+gh api graphql -f query='
+  query($owner: String!, $repo: String!, $pr: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pr) {
+        reviewThreads(first: 100) {
+          nodes {
+            id
+            isResolved
+            comments(first: 1) {
+              nodes {
+                body
+                path
+                line
+                databaseId
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+' -f owner='{owner}' -f repo='{repo}' -F pr={pr_number}
+```
+
+For each comment, capture: id, author, body, file path + line (if review comment), whether it's part of a resolved conversation, any reply thread, and the **review thread node ID** (the `id` from `reviewThreads.nodes`, e.g. `PRRT_kwDO...`). Build a mapping from each review comment to its parent thread ID by matching the `databaseId` from the GraphQL response to the comment `id` from the REST API — you'll need this to resolve threads after fixing them.
 
 ### Find the pre-review state
 
@@ -165,36 +194,9 @@ For selected **nit** comments, apply them directly — rename variables, remove 
 
 ## Step 7: Resolve Fixed Conversations
 
-After fixing comments, resolve their review threads on GitHub so reviewers can see they've been addressed. Use the GraphQL API since the REST API doesn't support resolving threads.
+After fixing comments, resolve their review threads on GitHub so reviewers can see they've been addressed. Use the thread IDs captured in Step 2.
 
-First, fetch all review threads and their node IDs:
-
-```bash
-gh api graphql -f query='
-  query($owner: String!, $repo: String!, $pr: Int!) {
-    repository(owner: $owner, name: $repo) {
-      pullRequest(number: $pr) {
-        reviewThreads(first: 100) {
-          nodes {
-            id
-            isResolved
-            comments(first: 1) {
-              nodes {
-                body
-                path
-                line
-                databaseId
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-' -f owner='{owner}' -f repo='{repo}' -F pr={pr_number}
-```
-
-Match each thread to the comments you fixed by comparing the `databaseId`, file path, and line number against the comments from Step 2. For every thread whose comment you fixed or applied as a nit, resolve it:
+Match each thread to the comments you fixed by comparing the `databaseId` from the GraphQL response to the comment `id` from the REST API. For every thread whose comment you fixed or applied as a nit, resolve it:
 
 ```bash
 gh api graphql -f query='
@@ -222,6 +224,8 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies \
 Keep replies concise and actionable:
 - **question**: Explain that this needs a human response, and include any context you gathered that might help the PR author answer. E.g., *"This needs a response from the author — the existing rate limiter is in `src/middleware/rate-limit.ts` if that helps frame the reply."*
 - **out-of-scope**: Explain why it doesn't belong in this PR and suggest where it should be tracked. E.g., *"Valid concern — this is a broader refactor beyond the scope of this PR. Recommend tracking as a follow-up issue."*
+
+If the `resolveReviewThread` mutation fails (e.g., permissions), log the failure but don't block the rest of the workflow. Note it in the report.
 
 ## Step 8: Report
 
