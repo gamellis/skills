@@ -184,19 +184,9 @@ Now that tests are green, look for cleanup opportunities in the code you just to
 
 Run tests after each refactor step. Never refactor while red.
 
-### Move to the next comment
+### Resolve the thread
 
-One comment at a time. Don't batch. Each cycle is self-contained: you learn from each fix and that informs the next one.
-
-## Step 6: Apply Nits
-
-For selected **nit** comments, apply them directly — rename variables, remove unused imports, fix formatting. These don't need tests since they don't change behavior. Run the test suite after all nits are applied to confirm nothing broke.
-
-## Step 7: Resolve Fixed Conversations
-
-After fixing comments, resolve their review threads on GitHub so reviewers can see they've been addressed. Use the thread IDs captured in Step 2.
-
-Match each thread to the comments you fixed by comparing the `databaseId` from the GraphQL response to the comment `id` from the REST API. For every thread whose comment you fixed or applied as a nit, resolve it:
+Immediately after the fix is verified (tests pass), resolve the review thread on GitHub using the thread ID captured in Step 2:
 
 ```bash
 gh api graphql -f query='
@@ -211,9 +201,21 @@ gh api graphql -f query='
 ' -f threadId='<thread_node_id>'
 ```
 
-Only resolve threads for comments you actually addressed (categories: **fix**, **nit**, **resolved**). Do NOT resolve threads for **question** or **out-of-scope** comments — those still need human attention.
+If the mutation fails (e.g., permissions), log the failure but continue with the next comment. Note it in the report.
 
-For **question** and **out-of-scope** comments, reply to the thread explaining why they weren't addressed:
+### Move to the next comment
+
+One comment at a time. Don't batch. Each cycle is self-contained: you learn from each fix and that informs the next one.
+
+## Step 6: Apply Nits
+
+For selected **nit** comments, apply them directly — rename variables, remove unused imports, fix formatting. These don't need tests since they don't change behavior. Run the test suite after all nits are applied to confirm nothing broke.
+
+After applying nits, resolve each nit's review thread on GitHub using the same `resolveReviewThread` mutation shown in Step 5.
+
+## Step 7: Reply to Unresolved Threads
+
+For **question** and **out-of-scope** comments, do NOT resolve the thread — those still need human attention. Instead, reply explaining why they weren't addressed:
 
 ```bash
 # Reply to a review comment thread
@@ -224,8 +226,6 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies \
 Keep replies concise and actionable:
 - **question**: Explain that this needs a human response, and include any context you gathered that might help the PR author answer. E.g., *"This needs a response from the author — the existing rate limiter is in `src/middleware/rate-limit.ts` if that helps frame the reply."*
 - **out-of-scope**: Explain why it doesn't belong in this PR and suggest where it should be tracked. E.g., *"Valid concern — this is a broader refactor beyond the scope of this PR. Recommend tracking as a follow-up issue."*
-
-If the `resolveReviewThread` mutation fails (e.g., permissions), log the failure but don't block the rest of the workflow. Note it in the report.
 
 ## Step 8: Report
 
