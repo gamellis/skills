@@ -14,10 +14,6 @@ A skill is a folder with a `SKILL.md` describing a task in enough detail that an
 
 `fix-pr-comments` needs the [`gh`](https://cli.github.com) CLI. `chip-handoff` is the one skill here that isn't portable — it depends on the `spawn_task` tool, which only exists in the Claude Code desktop app.
 
-## Contributing
-
-These are shaped around how I work, so I'm unlikely to take feature requests that pull them elsewhere — but bug reports and fixes are welcome. Fork freely; MIT means you can adapt them to your own workflow without asking.
-
 ## License
 
 [MIT](LICENSE)
