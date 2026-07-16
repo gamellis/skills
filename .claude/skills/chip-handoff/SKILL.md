@@ -1,6 +1,6 @@
 ---
 name: chip-handoff
-description: Hand the current conversation off to a task chip the user can click to open as a fresh session.
+description: Hand the current conversation off to a Claude Code task chip the user can click to open as a fresh session.
 argument-hint: "What will the next session be used for?"
 disable-model-invocation: true
 ---
