@@ -13,7 +13,7 @@ Shape Up pitches have five ingredients: **Problem, Appetite, Solution, Rabbit Ho
 
 ## References
 
-Before writing, read `references/example-pitches.md` in this skill's directory — it contains two real pitches at different scales that demonstrate the right tone and level of detail.
+Before writing, read `references/example-pitches.md` in this skill's directory — it contains two worked pitches at different scales that demonstrate the right tone and level of detail.
 
 For deeper Shape Up theory (especially how pitches map to agent-driven spec generation), consult `references/shape-up-research.md`.
 
@@ -38,7 +38,7 @@ A specific story showing why the status quo doesn't work. Name who is affected, 
 
 A good problem statement makes the reader feel the pain. A bad one just names a feature wish.
 
-**Good:** "After running `hew init`, the user has no way to verify everything is wired up correctly. Tokens could be expired, the relay could be misconfigured, the webhook could be pointing at the wrong URL. Without a diagnostic tool, the user won't know until the foreman fails at runtime."
+**Good:** "After running `init`, the user has no way to verify everything is wired up correctly. Tokens could be expired, the config could point at a deleted project, the build command could be missing. Without a diagnostic tool, the user won't know until a deploy fails halfway through — usually while they're trying to ship something."
 
 **Bad:** "We need a health check command."
 
@@ -64,7 +64,7 @@ The solution should also include a "what it doesn't do" paragraph that reinforce
 
 Ground the solution in the codebase. Name the models, services, and patterns that already exist and that this work will extend or interact with.
 
-**Good:** "User clicks 'Run Analysis' on the taxonomy page → kicks off a background job → results show as a list of findings with severity and recommendations. The existing `StructuralAnalysisJob` gets extended rather than creating a new job."
+**Good:** "User clicks 'Run Analysis' on the report page → kicks off a background job → results show as a list of findings with severity and recommendations. The existing `ReportGenerationJob` gets extended rather than creating a new job."
 
 **Too abstract:** "There should be some way to run analysis."
 
@@ -86,7 +86,7 @@ Each rabbit hole should be *resolved* in the pitch, not just flagged. "We'll sto
 
 Scope *outside* the project — things deliberately excluded to stay within appetite. These are firm, not aspirational. They tell the builder (or agent) exactly where to stop.
 
-Good no-gos are things that a reasonable person might assume are in scope but aren't: "Don't fix problems automatically — report and suggest." "No Linear API calls from the relay."
+Good no-gos are things that a reasonable person might assume are in scope but aren't: "Don't fix problems automatically — report and suggest." "No custom digest windows — one cadence, weekly."
 
 ## Output format
 

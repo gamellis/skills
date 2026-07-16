@@ -4,7 +4,7 @@
 
 How can we scope features before a spec document so that an autonomous agent loop can generate a requirements document, implementation design, and task list from a feature request? Can Basecamp's Shape Up framework provide the right structure for humans to give agents the information they need to produce specs?
 
-The goal: create a Linear task with structured shaping information → an agent extracts that information → generates a spec triad (requirements.md, design.md, tasks.md) → an agent builds it. We want to validate we're building the right thing *before* generating requirements.
+The goal: capture structured shaping information in a tracked issue → an agent extracts that information → generates a spec triad (requirements.md, design.md, tasks.md) → an agent builds it. We want to validate we're building the right thing *before* generating requirements.
 
 ## Thesis
 
