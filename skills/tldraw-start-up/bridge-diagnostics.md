@@ -23,13 +23,26 @@ The helper path inside the Codex skill directory may not exist; prefer the app-i
 The app can be visibly open while the bridge metadata is stale or while a sandbox cannot reach the host loopback interface. Diagnose in this order:
 
 ```bash
-cat "$HOME/Library/Application Support/tldraw/server.json"
+SERVER_JSON="$HOME/Library/Application Support/tldraw/server.json"
+cat "$SERVER_JSON"
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required to read $SERVER_JSON" >&2
+  exit 1
+fi
+
+if ! PORT=$(jq -er '.port | select(type == "number" and . >= 1 and . <= 65535)' "$SERVER_JSON") ||
+   ! TOKEN=$(jq -er '.token | select(type == "string" and length > 0)' "$SERVER_JSON"); then
+  echo "Invalid or incomplete bridge metadata in $SERVER_JSON" >&2
+  exit 1
+fi
+
 if command -v lsof >/dev/null 2>&1; then
-  lsof -nP -iTCP:7236 -sTCP:LISTEN
+  lsof -nP -iTCP:"$PORT" -sTCP:LISTEN
 elif command -v ss >/dev/null 2>&1; then
-  ss -ltnp | grep ':7236'
+  ss -ltnp | grep ":$PORT"
 elif command -v netstat >/dev/null 2>&1; then
-  netstat -an | grep '\.7236 .*LISTEN'
+  netstat -an | grep "\.$PORT .*LISTEN"
 else
   echo 'No socket-inspection tool available; use the authenticated curl check below.'
 fi
@@ -40,8 +53,16 @@ If socket inspection shows a listener on `127.0.0.1:7236`, the bridge is up. Run
 The authoritative end-to-end check is:
 
 ```bash
-PORT=$(jq -r .port "$HOME/Library/Application Support/tldraw/server.json")
-TOKEN=$(jq -r .token "$HOME/Library/Application Support/tldraw/server.json")
+SERVER_JSON="$HOME/Library/Application Support/tldraw/server.json"
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required to read $SERVER_JSON" >&2
+  exit 1
+fi
+if ! PORT=$(jq -er '.port | select(type == "number" and . >= 1 and . <= 65535)' "$SERVER_JSON") ||
+   ! TOKEN=$(jq -er '.token | select(type == "string" and length > 0)' "$SERVER_JSON"); then
+  echo "Invalid or incomplete bridge metadata in $SERVER_JSON" >&2
+  exit 1
+fi
 curl -sS -X POST "http://127.0.0.1:$PORT/api/search" \
   -H "authorization: Bearer $TOKEN" \
   -H 'content-type: application/json' \
