@@ -2,7 +2,6 @@
 name: writing-tighten
 description: Writing, polish — check a draft against a fixed checklist of prose rules, then fix the flagged lines with the user.
 disable-model-invocation: true
-user_invocable: true
 argument-hint: "[path to a draft, or paste the text]"
 ---
 
