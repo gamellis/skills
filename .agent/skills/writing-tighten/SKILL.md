@@ -1,6 +1,7 @@
 ---
 name: writing-tighten
-description: "Check a piece of writing against a fixed checklist of prose rules — one reader, no adverbs, active voice, concrete over abstract, plain short sentences, varied pacing, no warm-up, cut 10% — then fix the flagged lines interactively with the user. Use when the user wants writing checked, tightened, punched up, edited, or made less flabby; when they ask 'is this any good?', 'edit this draft', 'make this tighter', 'check my writing'; or when they paste prose and want feedback on the prose itself rather than the ideas."
+description: Writing, polish — check a draft against a fixed checklist of prose rules, then fix the flagged lines with the user.
+disable-model-invocation: true
 user_invocable: true
 argument-hint: "[path to a draft, or paste the text]"
 ---
