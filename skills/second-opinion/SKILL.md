@@ -21,15 +21,9 @@ The transcript ships everything it contains — command output, file contents, w
 
 ## 2. Ask the other harness
 
-The invocation takes `[harness] [model] [effort]`, each optional. Use what was given; for what wasn't, ask the user which harness to put it to — naming the ones installed here other than the one you're running in — and let the CLI fall back to its own configured default model and effort.
+The invocation takes `[harness] [model] [effort]`, each optional. For what wasn't given, ask the user which harness — naming the ones installed here other than the one you're running in — and let the CLI use its own default model and effort.
 
-| Harness | Command | Model | Effort |
-| --- | --- | --- | --- |
-| Codex | `codex exec -s read-only -o .scratch/second-opinion/<slug>.answer.md - < .scratch/second-opinion/<slug>.transcript.md` | `-m <model>` | `-c model_reasoning_effort=<effort>` |
-| Cursor | `cursor-agent -p --mode ask "$(cat .scratch/second-opinion/<slug>.transcript.md)" > .scratch/second-opinion/<slug>.answer.md` | `--model <model>` | `--model '<model>[effort=<effort>]'` |
-| Claude Code | `claude -p "$(cat .scratch/second-opinion/<slug>.transcript.md)" > .scratch/second-opinion/<slug>.answer.md` | `--model <model>` | — |
-
-Run it read-only, from the repo root, in the background — these take minutes.
+Run it read-only from the repo root, feed the transcript in as the prompt, and capture the answer to `<slug>.answer.md`. Background it; these take minutes.
 
 ## 3. Report the divergence
 
