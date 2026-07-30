@@ -13,7 +13,7 @@ Put a question to a **different harness** — a different model — and bring ba
 
 Dump this session's conversation to `.scratch/second-opinion/<slug>.transcript.md`, `<slug>` naming the question (outside a repo, use a temp file). See [`transcripts.md`](transcripts.md) for the extraction recipe for the harness you're running in.
 
-Append one line: which question is live. "Answer Q{N}"
+Close with a rule and the live question in full. It's the last thing read, and it has to outrank everything above it — a bare "Answer Q2" doesn't.
 
 The transcript ships everything it contains — command output, file contents, whatever your tool calls returned — to another vendor's CLI. If anything in this session shouldn't travel, say so and let the user decide before you send.
 

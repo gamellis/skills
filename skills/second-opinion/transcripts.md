@@ -4,6 +4,8 @@ Each harness persists its own sessions locally. Use the recipe for the one you'r
 
 Keep assistant and user text; reduce tool calls to a one-line marker so the reader can see where legwork happened without drowning in tool output.
 
+Drop skill bodies. They arrive as user messages but they're instructions to *this* agent, not conversation — and the other harness will read them as its own. Left in, a skill's closing line ("ask the user which harness") outranks your appended question, and the answer comes back addressed to that instead.
+
 ## Claude Code
 
 Sessions live in `~/.claude/projects/<slug>/<uuid>.jsonl`, where `<slug>` is the working directory with every `/` and `.` replaced by `-`. The current session is the most recently modified file there.
@@ -18,7 +20,9 @@ jq -r '
   | map(if .type=="text" then .text
         elif .type=="tool_use" then "[tool: " + .name + "]"
         else empty end) | join("\n")
-  | select(length>0) | "\n## " + $role + "\n\n" + .
+  | select(length>0)
+  | select(test("^Base directory for this skill:|<command-name>")|not)
+  | "\n## " + $role + "\n\n" + .
 ' "$SESSION" > .scratch/second-opinion/<slug>.transcript.md
 ```
 
