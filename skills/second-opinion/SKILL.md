@@ -30,11 +30,11 @@ Run it read-only from the repo root, feed the transcript in as the prompt, and c
 Give the user, in order:
 
 1. **The answer, verbatim** — the whole of what came back, copied through unedited.
-2. **Where it diverges from yours** — the specific claim, weighting, or assumption you disagree on.
+2. **Compare** — the specific claim, weighting, and assumptions.
 
 Check any repo fact it asserts that you hadn't, and say what you found.
 
-Hold both takes open.
+Hold both takes open. 
 
 ## 4. Resume
 
